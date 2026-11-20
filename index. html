@@ -1,0 +1,1244 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CineSync Party - HD Watch & 5-Min Auto-Delete Chat</title>
+    <style>
+        :root {
+            --bg-main: #090b10;
+            --bg-card: #121622;
+            --bg-elevated: #1a2030;
+            --bg-input: #222a3e;
+            --accent: #ff2e4d;
+            --accent-hover: #ff4762;
+            --accent-soft: rgba(255, 46, 77, 0.14);
+            --blue: #38bdf8;
+            --gold: #fbbf24;
+            --success: #22c55e;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: rgba(148, 163, 184, 0.18);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 20px 14px;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background:
+                radial-gradient(circle at 12% 10%, rgba(255, 46, 77, 0.14), transparent 36%),
+                radial-gradient(circle at 88% 15%, rgba(56, 189, 248, 0.12), transparent 38%),
+                var(--bg-main);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .app-shell {
+            width: 100%;
+            max-width: 900px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            box-shadow: 0 24px 60px rgba(0, 0, 0, 0.65);
+            padding: 26px;
+        }
+
+        .top-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding-bottom: 16px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+            flex-wrap: wrap;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand-badge {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--accent), #ff7b54);
+            display: grid;
+            place-items: center;
+            font-size: 20px;
+            font-weight: 800;
+        }
+
+        .brand-title {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 800;
+        }
+
+        .brand-sub {
+            margin: 2px 0 0;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 7px 14px;
+            border-radius: 999px;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            font-size: 12.5px;
+            font-weight: 600;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--success);
+        }
+
+        h2, h3 {
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+
+        p {
+            color: var(--text-muted);
+            line-height: 1.5;
+            margin-top: 0;
+        }
+
+        .mode-label {
+            display: block;
+            font-size: 13.5px;
+            font-weight: 600;
+            margin: 14px 0 8px;
+        }
+
+        .mode-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 14px;
+            margin-bottom: 16px;
+        }
+
+        .mode-card {
+            background: var(--bg-elevated);
+            border: 1.5px solid var(--border);
+            border-radius: 14px;
+            padding: 15px;
+            cursor: pointer;
+            text-align: left;
+            color: var(--text-main);
+            width: 100%;
+            font-family: inherit;
+            transition: all 0.2s ease;
+        }
+
+        .mode-card.active {
+            background: var(--accent-soft);
+            border-color: var(--accent);
+        }
+
+        .mode-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 6px;
+        }
+
+        .mode-tag {
+            font-size: 11px;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .mode-card.active .mode-tag {
+            background: var(--accent);
+            color: #fff;
+        }
+
+        .mode-title {
+            font-size: 15px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .mode-desc {
+            font-size: 12.5px;
+            color: var(--text-muted);
+            margin: 0;
+        }
+
+        .source-panel {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 16px;
+            margin-bottom: 14px;
+        }
+
+        .drop-zone {
+            border: 2px dashed rgba(148, 163, 184, 0.35);
+            border-radius: 12px;
+            padding: 18px;
+            text-align: center;
+            background: rgba(15, 23, 42, 0.45);
+        }
+
+        .file-meta {
+            margin-top: 10px;
+            font-size: 13px;
+            color: var(--blue);
+            font-weight: 600;
+        }
+
+        .input-row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        input[type="file"],
+        input[type="password"],
+        input[type="text"] {
+            width: 100%;
+            padding: 12px 14px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: var(--bg-input);
+            color: var(--text-main);
+            font-size: 15px;
+            outline: none;
+        }
+
+        input:focus {
+            border-color: var(--accent);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            border: none;
+            border-radius: 10px;
+            padding: 12px 18px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            color: #fff;
+            font-family: inherit;
+            white-space: nowrap;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-hover);
+        }
+
+        .btn-secondary {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+        }
+
+        .btn-secondary:hover {
+            background: #273046;
+        }
+
+        .btn-small {
+            padding: 8px 12px;
+            font-size: 12.5px;
+        }
+
+        .full-width {
+            width: 100%;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .error-text {
+            color: #fb7185;
+            font-size: 13.5px;
+            font-weight: 600;
+            margin-top: 10px;
+            min-height: 20px;
+        }
+
+        /* Share Banner */
+        .room-banner {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 14px;
+            margin-bottom: 16px;
+        }
+
+        .banner-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
+        }
+
+        .timer-badge {
+            padding: 6px 12px;
+            border-radius: 8px;
+            background: rgba(251, 191, 36, 0.14);
+            color: var(--gold);
+            font-weight: 700;
+            font-size: 13px;
+        }
+
+        .timer-badge.expired {
+            background: rgba(251, 113, 133, 0.16);
+            color: #fb7185;
+        }
+
+        .link-row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 8px 10px;
+            margin-bottom: 10px;
+        }
+
+        .link-url {
+            flex: 1;
+            font-size: 13px;
+            overflow-x: auto;
+            white-space: nowrap;
+            font-family: monospace;
+        }
+
+        /* HD Video Container */
+        .player-box {
+            border-radius: 14px;
+            overflow: hidden;
+            background: #000;
+            border: 1px solid var(--border);
+            aspect-ratio: 16 / 9;
+            width: 100%;
+            margin-bottom: 12px;
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.7);
+        }
+
+        .player-box video,
+        .player-box iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: block;
+            object-fit: contain;
+        }
+
+        .sync-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            flex-wrap: wrap;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 10px 14px;
+            margin-bottom: 16px;
+        }
+
+        .sync-info {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .sync-controls {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        /* Ephemeral Chat Box */
+        .chat-card {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 16px;
+        }
+
+        .chat-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
+        }
+
+        .ephemeral-pill {
+            font-size: 11.5px;
+            padding: 4px 10px;
+            border-radius: 999px;
+            background: rgba(56, 189, 248, 0.14);
+            color: var(--blue);
+            font-weight: 600;
+        }
+
+        .chat-feed {
+            height: 230px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding: 12px;
+            border-radius: 10px;
+            background: rgba(9, 11, 16, 0.78);
+            border: 1px solid var(--border);
+            margin-bottom: 10px;
+        }
+
+        .msg {
+            max-width: 85%;
+            padding: 9px 12px;
+            border-radius: 10px;
+            background: var(--bg-input);
+            font-size: 14px;
+            line-height: 1.45;
+            word-break: break-word;
+            transition: opacity 0.3s ease;
+        }
+
+        .msg.host {
+            border-left: 3px solid var(--accent);
+            align-self: flex-start;
+        }
+
+        .msg.guest {
+            border-left: 3px solid var(--blue);
+            align-self: flex-end;
+        }
+
+        .msg.system {
+            max-width: 100%;
+            align-self: center;
+            background: rgba(148, 163, 184, 0.1);
+            color: var(--text-muted);
+            font-size: 12.5px;
+            text-align: center;
+        }
+
+        .msg-meta {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            font-size: 11px;
+            font-weight: 700;
+            margin-bottom: 3px;
+            color: var(--gold);
+        }
+
+        .msg.guest .msg-meta {
+            color: var(--blue);
+        }
+
+        .msg-countdown {
+            color: #fb7185;
+            font-weight: 600;
+        }
+
+        .quick-reactions {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+
+        .react-btn {
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 6px 10px;
+            font-size: 15px;
+            cursor: pointer;
+        }
+
+        .react-btn:hover {
+            background: #2c354d;
+        }
+
+        .chat-form {
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-form input {
+            flex: 1;
+        }
+
+        .actions-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            margin-top: 14px;
+            flex-wrap: wrap;
+        }
+
+        @media (max-width: 640px) {
+            .mode-grid {
+                grid-template-columns: 1fr;
+            }
+            .chat-form {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<main class="app-shell">
+    <header class="top-bar">
+        <div class="brand">
+            <div class="brand-badge">▶</div>
+            <div>
+                <h1 class="brand-title">CineSync Party HD</h1>
+                <p class="brand-sub">HD ভিডিও • ৫ মিনিট লিংক মেয়াদ • স্টোরেজ ছাড়া ৫ মিনিট অটো-ডিলিট লাইভ চ্যাট</p>
+            </div>
+        </div>
+        <div class="status-pill">
+            <span class="status-dot"></span>
+            <span id="roleIndicator">Host Setup</span>
+        </div>
+    </header>
+
+    <!-- ১. হোস্ট সেটআপ -->
+    <section id="hostSection">
+        <h2>নতুন Watch Party রুম তৈরি করুন</h2>
+        <p>ডিভাইস থেকে অরিজিনাল কোয়ালিটির ভিডিও আপলোড করুন অথবা HD YouTube লিংক দিন।</p>
+
+        <span class="mode-label">ভিডিও মাধ্যম নির্বাচন করুন:</span>
+        <div class="mode-grid">
+            <button type="button" id="modeUploadCard" class="mode-card active" onclick="selectMode('upload')">
+                <div class="mode-card-header">
+                    <span>📁</span>
+                    <span class="mode-tag">Original HD File</span>
+                </div>
+                <div class="mode-title">ডিভাইস থেকে ফাইল আপলোড</div>
+                <p class="mode-desc">চাপ দিলে ডিভাইস থেকে ভিডিও ফাইল বাছাই করার অপশন আসবে।</p>
+            </button>
+
+            <button type="button" id="modeYoutubeCard" class="mode-card" onclick="selectMode('youtube')">
+                <div class="mode-card-header">
+                    <span>▶️</span>
+                    <span class="mode-tag">YouTube HD Link</span>
+                </div>
+                <div class="mode-title">YouTube লিংক পেস্ট করুন</div>
+                <p class="mode-desc">চাপ দিলে YouTube ভিডিওর লিংক দেওয়ার বক্স আসবে।</p>
+            </button>
+        </div>
+
+        <!-- ডিভাইস ফাইল প্যানেল -->
+        <div id="uploadPanel" class="source-panel">
+            <div class="drop-zone">
+                <p style="margin-bottom: 10px; color: var(--text-main); font-weight: 600;">
+                    আপনার ডিভাইস থেকে ভিডিও ফাইল সিলেক্ট করুন (অরিজিনাল কোয়ালিটিতে চলবে)
+                </p>
+                <input type="file" id="videoFileInput" accept="video/*" onchange="handleFileChange()">
+                <div style="margin-top: 10px; display: flex; justify-content: center; gap: 8px;">
+                    <button type="button" class="btn btn-secondary btn-small" onclick="document.getElementById('videoFileInput').click()">📂 ফাইল বাছাই করুন</button>
+                    <button type="button" id="clearFileBtn" class="btn btn-secondary btn-small hidden" onclick="clearSelectedFile()">✖ বাতিল</button>
+                </div>
+                <div id="selectedFileMeta" class="file-meta">কোনো ফাইল সিলেক্ট করা হয়নি</div>
+            </div>
+        </div>
+
+        <!-- YouTube লিংক প্যানেল -->
+        <div id="youtubePanel" class="source-panel hidden">
+            <label for="youtubeLinkInput" class="mode-label" style="margin-top: 0;">YouTube ভিডিও লিংক দিন:</label>
+            <div class="input-row">
+                <input
+                    type="text"
+                    id="youtubeLinkInput"
+                    placeholder="https://www.youtube.com/watch?v=... বা https://youtu.be/..."
+                    oninput="previewYouTubeInfo()"
+                >
+                <button type="button" class="btn btn-secondary btn-small" onclick="pasteYouTubeFromClipboard()">📋 পেস্ট</button>
+                <button type="button" class="btn btn-secondary btn-small" onclick="clearYouTubeInput()">✖</button>
+            </div>
+            <div id="ytPreviewHint" class="file-meta" style="color: var(--text-muted);">
+                YouTube ভিডিও সর্বোচ্চ available HD কোয়ালিটিতে প্লে হবে।
+            </div>
+        </div>
+
+        <div style="margin-bottom: 14px;">
+            <label for="hostPasswordInput" class="mode-label" style="margin-top: 4px;">রুমের পাসওয়ার্ড সেট করুন:</label>
+            <div class="input-row">
+                <input type="password" id="hostPasswordInput" placeholder="একটি পাসওয়ার্ড লিখুন" onkeydown="if(event.key==='Enter') createRoom()">
+                <button type="button" id="toggleHostPassBtn" class="btn btn-secondary btn-small" onclick="togglePasswordVisibility('hostPasswordInput', 'toggleHostPassBtn')">👁 দেখুন</button>
+            </div>
+        </div>
+
+        <button type="button" class="btn btn-primary full-width" onclick="createRoom()">
+            🚀 রুম ও ৫ মিনিটের জয়েন লিংক তৈরি করুন
+        </button>
+        <div id="hostError" class="error-text"></div>
+    </section>
+
+    <!-- ২. পাসওয়ার্ড ভেরিফিকেশন -->
+    <section id="joinSection" class="hidden">
+        <h2>🔒 প্রাইভেট রুমে প্রবেশ করুন</h2>
+        <p>ভিডিও দেখতে এবং চ্যাট করতে হোস্টের দেওয়া পাসওয়ার্ড লিখুন।</p>
+
+        <div class="banner-top" style="margin-bottom: 14px;">
+            <span class="timer-badge" id="joinTimerBadge">⏱ লিংকের মেয়াদ বাকি: 05:00</span>
+        </div>
+
+        <div style="margin-bottom: 14px;">
+            <div class="input-row">
+                <input type="password" id="guestPasswordInput" placeholder="পাসওয়ার্ড দিন" onkeydown="if(event.key==='Enter') verifyGuestPassword()">
+                <button type="button" id="toggleGuestPassBtn" class="btn btn-secondary btn-small" onclick="togglePasswordVisibility('guestPasswordInput', 'toggleGuestPassBtn')">👁 দেখুন</button>
+            </div>
+        </div>
+
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <button type="button" class="btn btn-primary" style="flex: 1;" onclick="verifyGuestPassword()">✅ প্রবেশ করুন</button>
+            <button type="button" id="backToHostBtn" class="btn btn-secondary hidden" onclick="returnToHostView()">↩ হোস্ট ভিউ</button>
+        </div>
+        <div id="joinError" class="error-text"></div>
+    </section>
+
+    <!-- ৩. ভিডিও প্লেয়ার ও অটো-ডিলিট লাইভ চ্যাট -->
+    <section id="playerSection" class="hidden">
+        <div id="hostShareBanner" class="room-banner">
+            <div class="banner-top">
+                <strong style="font-size: 14.5px;">🔗 জয়েন লিংক (৫ মিনিট পর এক্সপায়ার হবে)</strong>
+                <span class="timer-badge" id="roomTimerBadge">⏱ বাকি সময়: 05:00</span>
+            </div>
+            <div class="link-row">
+                <span id="generatedShareLink" class="link-url"></span>
+                <button type="button" id="copyLinkBtn" class="btn btn-secondary btn-small" onclick="copyShareLink()">📋 কপি</button>
+            </div>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                <button type="button" class="btn btn-secondary btn-small" onclick="openGuestSimulation()">👤 গেস্ট ভিউ টেস্ট</button>
+                <button type="button" class="btn btn-secondary btn-small" onclick="openInNewTab()">🪟 নতুন ট্যাবে গেস্ট লিংক খুলুন</button>
+            </div>
+        </div>
+
+        <!-- HD Video Player -->
+        <div class="player-box">
+            <video id="localVideoPlayer" class="hidden" controls playsinline preload="metadata"></video>
+            <iframe
+                id="ytIframePlayer"
+                class="hidden"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowfullscreen
+            ></iframe>
+        </div>
+
+        <!-- Sync Controls -->
+        <div class="sync-bar">
+            <span id="syncStatusText" class="sync-info">🎬 HD প্লেয়ার প্রস্তুত</span>
+            <div class="sync-controls">
+                <button type="button" class="btn btn-secondary btn-small" onclick="broadcastMediaAction('play')">▶ একসাথে প্লে</button>
+                <button type="button" class="btn btn-secondary btn-small" onclick="broadcastMediaAction('pause')">⏸ একসাথে পজ</button>
+                <button type="button" class="btn btn-secondary btn-small" onclick="broadcastMediaAction('restart')">⏮ শুরু থেকে</button>
+            </div>
+        </div>
+
+        <!-- Zero-Storage Ephemeral Chat -->
+        <section class="chat-card" aria-label="Live Ephemeral Chat">
+            <div class="chat-header">
+                <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                    <h3 style="margin: 0;">💬 লাইভ চ্যাট</h3>
+                    <span class="ephemeral-pill">🛡️ নো-স্টোরেজ • প্রতিটি মেসেজ ৫ মিনিট পর অটো-ডিলিট</span>
+                </div>
+                <span id="chatModeBadge" style="font-size: 12px; color: var(--text-muted);">সক্রিয়</span>
+            </div>
+
+            <div id="chatFeed" class="chat-feed">
+                <div class="msg system">কোনো ডাটাবেস বা স্টোরেজ ছাড়াই লাইভ চ্যাট চালু হয়েছে। প্রতিটি মেসেজ দেখার ৫ মিনিট পর স্বয়ংক্রিয়ভাবে মুছে যাবে।</div>
+            </div>
+
+            <div class="quick-reactions">
+                <button type="button" class="react-btn" onclick="sendQuickReaction('🔥 দারুণ!')">🔥</button>
+                <button type="button" class="react-btn" onclick="sendQuickReaction('😂 হাহা!')">😂</button>
+                <button type="button" class="react-btn" onclick="sendQuickReaction('❤️ অসাধারণ')">❤️</button>
+                <button type="button" class="react-btn" onclick="sendQuickReaction('👏 সেরা সিন!')">👏</button>
+                <button type="button" class="react-btn" onclick="sendQuickReaction('🍿 রেডি!')">🍿</button>
+            </div>
+
+            <div class="chat-form">
+                <input
+                    type="text"
+                    id="chatMessageInput"
+                    placeholder="মেসেজ লিখুন (৫ মিনিট পর অটো ডিলিট হবে)..."
+                    onkeydown="if(event.key==='Enter') sendMessage()"
+                >
+                <button type="button" class="btn btn-primary" onclick="sendMessage()">📨 পাঠান</button>
+            </div>
+        </section>
+
+        <div class="actions-row">
+            <button type="button" id="switchBackHostFooterBtn" class="btn btn-secondary hidden" onclick="returnToHostView()">↩ হোস্ট ভিউতে ফিরুন</button>
+            <button type="button" class="btn btn-secondary" onclick="resetApp()">🔄 নতুন রুম তৈরি করুন</button>
+        </div>
+    </section>
+
+    <!-- ৪. লিংক মেয়াদ শেষ -->
+    <section id="expiredSection" class="hidden" style="text-align: center; padding: 20px 0;">
+        <h2>⏳ জয়েন লিংকটির ৫ মিনিটের মেয়াদ শেষ হয়ে গেছে</h2>
+        <p>নতুন রুম তৈরি করে আবার লিংক জেনারেট করুন।</p>
+        <button type="button" class="btn btn-primary" onclick="resetApp()">🔄 নতুন রুম তৈরি করুন</button>
+    </section>
+</main>
+
+<script>
+    const FIVE_MINUTES_MS = 5 * 60 * 1000;
+
+    // ইন-মেমোরি স্টেট (কোনো ডাটাবেস বা স্টোরেজে চ্যাট সেভ হবে না)
+    let selectedSourceMode = "upload";
+    let roomPassword = "";
+    let roomCode = "";
+    let localFileUrl = "";
+    let youtubeEmbedUrl = "";
+    let linkExpiresAt = 0;
+    let countdownId = null;
+    let activeRole = "Host";
+    let hostRoomCreated = false;
+    let suppressVideoBroadcast = false;
+
+    // মেমোরিতে থাকা অস্থায়ী চ্যাট মেসেজ লিস্ট (৫ মিনিট পর অটো-রিমুভ হবে)
+    const activeEphemeralMessages = [];
+
+    // একই ব্রাউজারের একাধিক ট্যাবের মধ্যে তাৎক্ষণিক যোগাযোগ (Zero Storage)
+    const channel = ("BroadcastChannel" in window)
+        ? new BroadcastChannel("cinesync_zero_storage_party")
+        : null;
+
+    if (channel) {
+        channel.onmessage = (event) => {
+            const payload = event.data;
+            if (!payload) return;
+
+            if (payload.type === "chat_message") {
+                addEphemeralMessage(payload.id, payload.sender, payload.role, payload.text, payload.expiresAt, false);
+            } else if (payload.type === "media_sync") {
+                applyIncomingMediaSync(payload);
+            } else if (payload.type === "room_query" && hostRoomCreated) {
+                // নতুন ট্যাব রুমের তথ্য চাইলে সরাসরি মেমোরি থেকে পাঠানো
+                channel.postMessage({
+                    type: "room_info",
+                    roomCode,
+                    roomPassword,
+                    selectedSourceMode,
+                    youtubeEmbedUrl,
+                    linkExpiresAt
+                });
+            } else if (payload.type === "room_info" && !hostRoomCreated) {
+                handleReceivedRoomInfo(payload);
+            }
+        };
+    }
+
+    // প্রতি ১ সেকেন্ড পরপর মেয়াদোত্তীর্ণ চ্যাট মেসেজ ডিলিট করা
+    setInterval(() => {
+        const now = Date.now();
+        for (let i = activeEphemeralMessages.length - 1; i >= 0; i--) {
+            const item = activeEphemeralMessages[i];
+            const remainingMs = item.expiresAt - now;
+
+            if (remainingMs <= 0) {
+                if (item.element && item.element.parentNode) {
+                    item.element.remove();
+                }
+                activeEphemeralMessages.splice(i, 1);
+            } else if (item.timerSpan) {
+                const m = Math.floor(remainingMs / 60000);
+                const s = Math.floor((remainingMs % 60000) / 1000);
+                item.timerSpan.textContent = `মুছবে: ${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+            }
+        }
+    }, 1000);
+
+    // নতুন ট্যাবে ?room=XXXX লিংক খুললে হোস্ট ট্যাব থেকে ইন-মেমোরি তথ্য চাওয়া
+    window.addEventListener("DOMContentLoaded", () => {
+        const params = new URLSearchParams(window.location.search);
+        const queryRoom = params.get("room");
+        if (!queryRoom) return;
+
+        roomCode = queryRoom;
+        activeRole = "Guest";
+        document.getElementById("roleIndicator").textContent = "Guest Join";
+        switchSection("joinSection");
+
+        if (channel) {
+            channel.postMessage({ type: "room_query", roomCode: queryRoom });
+        }
+    });
+
+    function handleReceivedRoomInfo(info) {
+        if (info.roomCode !== roomCode) return;
+        roomPassword = info.roomPassword;
+        selectedSourceMode = info.selectedSourceMode;
+        youtubeEmbedUrl = info.youtubeEmbedUrl;
+        linkExpiresAt = info.linkExpiresAt;
+
+        if (Date.now() > linkExpiresAt) {
+            switchSection("expiredSection");
+            return;
+        }
+        startCountdown();
+    }
+
+    // লোকাল ভিডিও প্লে/পজ/সিক করলে অন্য ট্যাবে সিঙ্ক পাঠানো
+    (function initLocalVideoSync() {
+        const videoEl = document.getElementById("localVideoPlayer");
+        if (!videoEl) return;
+
+        videoEl.addEventListener("play", () => {
+            if (!suppressVideoBroadcast) sendSyncSignal("play", videoEl.currentTime);
+        });
+        videoEl.addEventListener("pause", () => {
+            if (!suppressVideoBroadcast) sendSyncSignal("pause", videoEl.currentTime);
+        });
+        videoEl.addEventListener("seeked", () => {
+            if (!suppressVideoBroadcast) sendSyncSignal("seek", videoEl.currentTime);
+        });
+    })();
+
+    function selectMode(mode) {
+        selectedSourceMode = mode;
+        const isUpload = mode === "upload";
+        document.getElementById("modeUploadCard").classList.toggle("active", isUpload);
+        document.getElementById("modeYoutubeCard").classList.toggle("active", !isUpload);
+        document.getElementById("uploadPanel").classList.toggle("hidden", !isUpload);
+        document.getElementById("youtubePanel").classList.toggle("hidden", isUpload);
+        document.getElementById("hostError").textContent = "";
+    }
+
+    function handleFileChange() {
+        const fileInput = document.getElementById("videoFileInput");
+        const metaEl = document.getElementById("selectedFileMeta");
+        const clearBtn = document.getElementById("clearFileBtn");
+
+        if (!fileInput.files || fileInput.files.length === 0) {
+            metaEl.style.color = "var(--blue)";
+            metaEl.textContent = "কোনো ফাইল সিলেক্ট করা হয়নি";
+            clearBtn.classList.add("hidden");
+            return;
+        }
+
+        const file = fileInput.files[0];
+        const sizeMb = (file.size / (1024 * 1024)).toFixed(2);
+        metaEl.style.color = "var(--success)";
+        metaEl.textContent = `✅ সিলেক্টেড: ${file.name} (${sizeMb} MB) — Original Quality`;
+        clearBtn.classList.remove("hidden");
+    }
+
+    function clearSelectedFile() {
+        const fileInput = document.getElementById("videoFileInput");
+        fileInput.value = "";
+        handleFileChange();
+    }
+
+    async function pasteYouTubeFromClipboard() {
+        const input = document.getElementById("youtubeLinkInput");
+        try {
+            const text = await navigator.clipboard.readText();
+            if (text) {
+                input.value = text.trim();
+                previewYouTubeInfo();
+            }
+        } catch (e) {
+            input.focus();
+        }
+    }
+
+    function clearYouTubeInput() {
+        const input = document.getElementById("youtubeLinkInput");
+        input.value = "";
+        previewYouTubeInfo();
+        input.focus();
+    }
+
+    function togglePasswordVisibility(inputId, btnId) {
+        const input = document.getElementById(inputId);
+        const btn = document.getElementById(btnId);
+        const isHidden = input.type === "password";
+        input.type = isHidden ? "text" : "password";
+        btn.textContent = isHidden ? "🙈 লুকান" : "👁 দেখুন";
+    }
+
+    function extractYouTubeId(rawUrl) {
+        const regex = /^.*(?:youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=|shorts\/)([^#&?]{11}).*/;
+        const match = rawUrl.match(regex);
+        return match && match[1] ? match[1] : null;
+    }
+
+    function previewYouTubeInfo() {
+        const rawUrl = document.getElementById("youtubeLinkInput").value.trim();
+        const hintEl = document.getElementById("ytPreviewHint");
+
+        if (!rawUrl) {
+            hintEl.style.color = "var(--text-muted)";
+            hintEl.textContent = "YouTube ভিডিও সর্বোচ্চ available HD কোয়ালিটিতে প্লে হবে।";
+            return;
+        }
+
+        const videoId = extractYouTubeId(rawUrl);
+        if (videoId) {
+            hintEl.style.color = "var(--success)";
+            hintEl.textContent = `✅ HD YouTube লিংক প্রস্তুত (ID: ${videoId})`;
+        } else {
+            hintEl.style.color = "#fb7185";
+            hintEl.textContent = "❌ সঠিক YouTube লিংক দিন।";
+        }
+    }
+
+    function createRoom() {
+        const errorEl = document.getElementById("hostError");
+        const passVal = document.getElementById("hostPasswordInput").value.trim();
+        errorEl.textContent = "";
+
+        if (selectedSourceMode === "upload") {
+            const fileInput = document.getElementById("videoFileInput");
+            if (!fileInput.files || fileInput.files.length === 0) {
+                errorEl.textContent = "দয়া করে একটি ভিডিও ফাইল সিলেক্ট করুন।";
+                return;
+            }
+            if (localFileUrl) URL.revokeObjectURL(localFileUrl);
+            localFileUrl = URL.createObjectURL(fileInput.files[0]);
+            youtubeEmbedUrl = "";
+        } else {
+            const ytRaw = document.getElementById("youtubeLinkInput").value.trim();
+            const videoId = extractYouTubeId(ytRaw);
+            if (!ytRaw || !videoId) {
+                errorEl.textContent = "দয়া করে একটি সঠিক YouTube ভিডিও লিংক দিন।";
+                return;
+            }
+            // HD কোয়ালিটি এবং API কন্ট্রোল প্যারামিটারসহ Embed URL
+            youtubeEmbedUrl = `https://www.youtube.com/embed/${videoId}?rel=0&modestbranding=1&playsinline=1&vq=hd1080&enablejsapi=1`;
+            localFileUrl = "";
+        }
+
+        if (!passVal) {
+            errorEl.textContent = "রুমের জন্য একটি পাসওয়ার্ড দিন।";
+            return;
+        }
+
+        roomPassword = passVal;
+        activeRole = "Host";
+        hostRoomCreated = true;
+        linkExpiresAt = Date.now() + FIVE_MINUTES_MS;
+        roomCode = Math.random().toString(36).substring(2, 8).toUpperCase();
+
+        const baseUrl = window.location.href.split("?")[0];
+        document.getElementById("generatedShareLink").textContent = `${baseUrl}?room=${roomCode}`;
+        document.getElementById("roleIndicator").textContent = "Host • HD Room";
+        document.getElementById("chatModeBadge").textContent = "Host চ্যাট (৫ মিনিট অটো-ডিলিট)";
+
+        switchSection("playerSection");
+        document.getElementById("hostShareBanner").classList.remove("hidden");
+
+        mountMediaPlayer();
+        startCountdown();
+    }
+
+    function mountMediaPlayer() {
+        const videoEl = document.getElementById("localVideoPlayer");
+        const iframeEl = document.getElementById("ytIframePlayer");
+        const syncStatus = document.getElementById("syncStatusText");
+
+        if (selectedSourceMode === "youtube" && youtubeEmbedUrl) {
+            videoEl.pause();
+            videoEl.removeAttribute("src");
+            videoEl.classList.add("hidden");
+
+            iframeEl.classList.remove("hidden");
+            iframeEl.src = youtubeEmbedUrl;
+            syncStatus.textContent = "▶️ YouTube HD প্লেয়ার চালু";
+        } else if (localFileUrl) {
+            iframeEl.removeAttribute("src");
+            iframeEl.classList.add("hidden");
+
+            videoEl.classList.remove("hidden");
+            videoEl.src = localFileUrl;
+            syncStatus.textContent = "🎬 Original HD ভিডিও চালু";
+        }
+    }
+
+    function startCountdown() {
+        clearInterval(countdownId);
+        const updateTimer = () => {
+            const diff = linkExpiresAt - Date.now();
+            const roomBadge = document.getElementById("roomTimerBadge");
+            const joinBadge = document.getElementById("joinTimerBadge");
+
+            if (diff <= 0) {
+                clearInterval(countdownId);
+                roomBadge.textContent = "⏱ মেয়াদ শেষ (Expired)";
+                roomBadge.classList.add("expired");
+                joinBadge.textContent = "⏱ মেয়াদ শেষ (Expired)";
+                joinBadge.classList.add("expired");
+
+                if (!document.getElementById("joinSection").classList.contains("hidden")) {
+                    switchSection("expiredSection");
+                }
+                return;
+            }
+
+            const mins = Math.floor((diff / 1000) / 60);
+            const secs = Math.floor((diff / 1000) % 60);
+            const formatted = `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
+
+            roomBadge.textContent = `⏱ বাকি সময়: ${formatted}`;
+            joinBadge.textContent = `⏱ লিংকের মেয়াদ বাকি: ${formatted}`;
+        };
+
+        updateTimer();
+        countdownId = setInterval(updateTimer, 1000);
+    }
+
+    function openGuestSimulation() {
+        if (Date.now() > linkExpiresAt) {
+            switchSection("expiredSection");
+            return;
+        }
+        document.getElementById("guestPasswordInput").value = "";
+        document.getElementById("joinError").textContent = "";
+        document.getElementById("roleIndicator").textContent = "Guest Join";
+        document.getElementById("backToHostBtn").classList.toggle("hidden", !hostRoomCreated);
+        switchSection("joinSection");
+    }
+
+    function returnToHostView() {
+        if (!hostRoomCreated) return;
+        activeRole = "Host";
+        document.getElementById("roleIndicator").textContent = "Host • HD Room";
+        document.getElementById("chatModeBadge").textContent = "Host চ্যাট (৫ মিনিট অটো-ডিলিট)";
+        document.getElementById("hostShareBanner").classList.remove("hidden");
+        document.getElementById("switchBackHostFooterBtn").classList.add("hidden");
+        switchSection("playerSection");
+    }
+
+    function openInNewTab() {
+        const linkText = document.getElementById("generatedShareLink").textContent;
+        if (linkText) window.open(linkText, "_blank", "noopener");
+    }
+
+    function verifyGuestPassword() {
+        if (Date.now() > linkExpiresAt) {
+            switchSection("expiredSection");
+            return;
+        }
+
+        const entered = document.getElementById("guestPasswordInput").value.trim();
+        const errorEl = document.getElementById("joinError");
+
+        if (!roomPassword) {
+            errorEl.textContent = "রুমের সেশন পাওয়া যায়নি। হোস্ট ট্যাবটি খোলা আছে কি না দেখুন।";
+            return;
+        }
+
+        if (entered === roomPassword) {
+            errorEl.textContent = "";
+            activeRole = "Guest";
+            document.getElementById("roleIndicator").textContent = "Guest • Watching";
+            document.getElementById("chatModeBadge").textContent = "Guest চ্যাট (৫ মিনিট অটো-ডিলিট)";
+            document.getElementById("hostShareBanner").classList.add("hidden");
+            document.getElementById("switchBackHostFooterBtn").classList.toggle("hidden", !hostRoomCreated);
+            switchSection("playerSection");
+            mountMediaPlayer();
+        } else {
+            errorEl.textContent = "❌ ভুল পাসওয়ার্ড! সঠিক পাসওয়ার্ড দিন।";
+        }
+    }
+
+    async function copyShareLink() {
+        const linkText = document.getElementById("generatedShareLink").textContent;
+        const btn = document.getElementById("copyLinkBtn");
+        if (!linkText) return;
+
+        try {
+            await navigator.clipboard.writeText(linkText);
+            btn.textContent = "✅ কপি হয়েছে";
+            setTimeout(() => { btn.textContent = "📋 কপি"; }, 1800);
+        } catch (e) {}
+    }
+
+    function broadcastMediaAction(action) {
+        const videoEl = document.getElementById("localVideoPlayer");
+        const iframeEl = document.getElementById("ytIframePlayer");
+
+        if (selectedSourceMode === "upload" && !videoEl.classList.contains("hidden")) {
+            suppressVideoBroadcast = true;
+            if (action === "play") videoEl.play().catch(() => {});
+            if (action === "pause") videoEl.pause();
+            if (action === "restart") {
+                videoEl.currentTime = 0;
+                videoEl.play().catch(() => {});
+            }
+            setTimeout(() => { suppressVideoBroadcast = false; }, 150);
+            sendSyncSignal(action, videoEl.currentTime);
+        } else if (selectedSourceMode === "youtube" && !iframeEl.classList.contains("hidden")) {
+            const cmdMap = {
+                play: '{"event":"command","func":"playVideo","args":""}',
+                pause: '{"event":"command","func":"pauseVideo","args":""}',
+                restart: '{"event":"command","func":"seekTo","args":[0,true]}'
+            };
+            if (iframeEl.contentWindow && cmdMap[action]) {
+                iframeEl.contentWindow.postMessage(cmdMap[action], "*");
+            }
+            sendSyncSignal(action, 0);
+        }
+    }
+
+    function sendSyncSignal(action, currentTime) {
+        if (channel) {
+            channel.postMessage({ type: "media_sync", action, currentTime, sender: activeRole });
+        }
+    }
+
+    function applyIncomingMediaSync(payload) {
+        const videoEl = document.getElementById("localVideoPlayer");
+        const iframeEl = document.getElementById("ytIframePlayer");
+
+        if (selectedSourceMode === "upload" && !videoEl.classList.contains("hidden")) {
+            suppressVideoBroadcast = true;
+            if (typeof payload.currentTime === "number" && Math.abs(videoEl.currentTime - payload.currentTime) > 0.6) {
+                videoEl.currentTime = payload.currentTime;
+            }
+            if (payload.action === "play") videoEl.play().catch(() => {});
+            if (payload.action === "pause") videoEl.pause();
+            if (payload.action === "restart") {
+                videoEl.currentTime = 0;
+                videoEl.play().catch(() => {});
+            }
+            setTimeout(() => { suppressVideoBroadcast = false; }, 150);
+        } else if (selectedSourceMode === "youtube" && !iframeEl.classList.contains("hidden")) {
+            const cmdMap = {
+                play: '{"event":"command","func":"playVideo","args":""}',
+                pause: '{"event":"command","func":"pauseVideo","args":""}',
+                restart: '{"event":"command","func":"seekTo","args":[0,true]}'
+            };
+            if (iframeEl.contentWindow && cmdMap[payload.action]) {
+                iframeEl.contentWindow.postMessage(cmdMap[payload.action], "*");
+            }
+        }
+    }
+
+    function sendQuickReaction(text) {
+        const input = document.getElementById("chatMessageInput");
+        input.value = text;
+        sendMessage();
+    }
+
+    function sendMessage() {
+        const input = document.getElementById("chatMessageInput");
+        const text = input.value.trim();
+        if (!text) return;
+
+        const msgId = "msg_" + Date.now() + "_" + Math.random().toString(36).slice(2, 7);
+        const sender = activeRole === "Host" ? "Host" : "Guest";
+        const roleClass = activeRole.toLowerCase();
+        // দেখার/পাঠানোর ঠিক ৫ মিনিট পর এক্সপায়ার টাইম
+        const expiresAt = Date.now() + FIVE_MINUTES_MS;
+
+        addEphemeralMessage(msgId, sender, roleClass, text, expiresAt, true);
+
+        if (channel) {
+            channel.postMessage({
+                type: "chat_message",
+                id: msgId,
+                sender,
+                role: roleClass,
+                text,
+                expiresAt
+            });
+        }
+
+        input.value = "";
+        input.focus();
+    }
+
+    function addEphemeralMessage(id, sender, roleClass, text, expiresAt, isSelf) {
+        // ডুপ্লিকেট মেসেজ রোধ
+        if (activeEphemeralMessages.some((m) => m.id === id)) return;
+
+        // রিসিভার যখন মেসেজ দেখবে তখন থেকে ৫ মিনিট হিসাব নিশ্চিত করা
+        const effectiveExpiry = isSelf ? expiresAt : (Date.now() + FIVE_MINUTES_MS);
+
+        const feed = document.getElementById("chatFeed");
+        const msgDiv = document.createElement("div");
+        msgDiv.className = `msg ${roleClass}`;
+
+        const meta = document.createElement("div");
+        meta.className = "msg-meta";
+
+        const authorSpan = document.createElement("span");
+        authorSpan.textContent = isSelf ? `${sender} (আপনি)` : sender;
+
+        const timerSpan = document.createElement("span");
+        timerSpan.className = "msg-countdown";
+        timerSpan.textContent = "মুছবে: 05:00";
+
+        meta.appendChild(authorSpan);
+        meta.appendChild(timerSpan);
+
+        const body = document.createElement("div");
+        body.textContent = text;
+
+        msgDiv.appendChild(meta);
+        msgDiv.appendChild(body);
+        feed.appendChild(msgDiv);
+        feed.scrollTop = feed.scrollHeight;
+
+        activeEphemeralMessages.push({
+            id,
+            expiresAt: effectiveExpiry,
+            element: msgDiv,
+            timerSpan
+        });
+    }
+
+    function switchSection(sectionId) {
+        ["hostSection", "joinSection", "playerSection", "expiredSection"].forEach((id) => {
+            document.getElementById(id).classList.toggle("hidden", id !== sectionId);
+        });
+    }
+
+    function resetApp() {
+        clearInterval(countdownId);
+        if (localFileUrl) {
+            URL.revokeObjectURL(localFileUrl);
+            localFileUrl = "";
+        }
+        window.location.href = window.location.href.split("?")[0];
+    }
+</script>
+
+</body>
+</html>
